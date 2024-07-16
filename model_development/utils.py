@@ -3,16 +3,16 @@ def train_test_ind(X, y, seed_=100):
         Split the data into test and train
 
         Parameters:
-           X (pd.DataFrame): The input data frame with features.
-           y (pd.Series): Target variable.
-           seed_ (int): Random seed for reproducibility
+        - X (pd.DataFrame): The input data frame with features.
+        - y (pd.Series): Target variable.
+        - seed_ (int): Random seed for reproducibility
 
         Returns:
-           tuple: A tuple containing the DataFrames and Series:
-            - X_train (pd.DataFrame): The training set features.
-            - X_test (pd.DataFrame): The test set features.
-            - y_train (pd.Series): The training set target variable.
-            - y_test (pd.Series): The test set target variable.
+        tuple: A tuple containing the DataFrames and Series:
+        - X_train (pd.DataFrame): The training set features.
+        - X_test (pd.DataFrame): The test set features.
+        - y_train (pd.Series): The training set target variable.
+        - y_test (pd.Series): The test set target variable.
     """
 
     if not isinstance(X, np.ndarray) or not isinstance(y, np.ndarray):
@@ -44,11 +44,11 @@ def PCA_feature_selection(X_transformed, max_features=20):
        Feature selection based on PCA loadings.
 
        Parameters:
-       X_transformed (pd.DataFrame): The input data frame with features.
-       max_features (int): The maximum number of features to select.
+       - X_transformed (pd.DataFrame): The input data frame with features.
+       - max_features (int): The maximum number of features to select.
 
        Returns:
-       pd.DataFrame: The data frame with selected features.
+       - pd.DataFrame: The data frame with selected features.
        """
 
     # Perform PCA

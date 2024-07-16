@@ -50,7 +50,7 @@ class ModelTraining:
             Parameters:
             - X (pd.DataFrame): The input data frame with features.
             - y (pd.Series): Target variable.
-            - max_feaures (int): Max features allowed to be selected during feature selection.
+            - max_features (int): Max features allowed to be selected during feature selection.
 
             Returns:
             None: This method does not return any value while it sets the following attributes:
@@ -109,9 +109,7 @@ class ModelTraining:
             - X_test (pd.DataFrame): Test data frame, default is None, it returns train data predictions.
 
             Returns:
-            -
-
-        :return:
+            - Returns predictions for train sample by default or predictions for test sample if X_test is provided
         """
         if X_test is None:
             return self.model.predict(self.X_selected)
@@ -122,15 +120,32 @@ class ModelTraining:
             return self.model.predict(X_test_selected)
 
     def get_train_test_performance(self):
+        """
+            Prints train and test performance metrics by splitting data, and fitting a model on train data
+            using parameters in self.best_params_.
 
+            This method is especially developed to benchmark the tuned model with a simple model
+            which has no any further modifications.
+
+            Parameters:
+            - None.
+
+            Returns:
+            - None
+        """
+
+        # Split the main training data
         X_selected_train, X_selected_test, y_train, y_test = train_test_ind(self.X_selected, self.y)
 
+        # Initialize and fit model
         self.model_train = CatBoostRegressor(**self.best_params_, verbose=False)
         self.model_train.fit(X_selected_train, y_train)
 
+        # Make predictions for both train and test
         y_pred_train = self.model_train.predict(X_selected_train)
         y_pred_test = self.model_train.predict(X_selected_test)
 
+        # Compute MSE, MAE and R2 metrics on both train and test
         mse_train = mean_squared_error(y_pred_train, y_train)
         mse_test = mean_squared_error(y_pred_test, y_test)
 
@@ -140,11 +155,22 @@ class ModelTraining:
         r2_train = r2_score(y_pred_train, y_train)
         r2_test = r2_score(y_pred_test, y_test)
 
+        # Prints the results respectively
         print(
             f'MSE Train: {mse_train:.4f} \nMSE Test: {mse_test:.4f} \n \nMAE Train: {mae_train:.4f} \nMAE Test: {mae_train:.4f} \n \nR2 Train: {r2_train:.4f} \nR2 Test: {r2_test:.4f}')
 
     def set_final_model(self, rank):
+        """
+            Refit the final model based on the given model rank.
 
+            Parameters:
+            - rank (int): Rank of the model which is provided in the self.grid_search_result
+
+            Returns:
+            - None: This method does not return any value while it resets the following attributes:
+                - self.best_params_ (dict): The best parameters set by user.
+                - self.model (CatBoostRegressor): The trained model with the best_params_ parameter set.
+                """
         df_best_params = self.grid_search_result.query("rank_test_score==@rank").filter(like='param')
         df_best_params.columns = df_best_params.columns.str.replace('param_', '')
         self.best_params_ = df_best_params.iloc[0].to_dict()

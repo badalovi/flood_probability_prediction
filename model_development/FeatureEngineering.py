@@ -3,20 +3,46 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
        Custom transformer for feature engineering.
 
        Parameters:
-       -----------
        keep_original_features (bool): Flag indicating whether to keep original features in the transformed data.
+
+       Attributes:
+       keep_original_features (bool): The flag indicating whether to keep original features in the transformed data.
+
+       Methods:
+       fit(self, X):
+            Fit method, does nothing as no fitting is required for this transformer.
+       transform(self, X):
+            Transform original features
+
     """
 
     def __init__(self, keep_original_features=True):
         self.keep_original_features = keep_original_features
 
     def fit(self, X):
+        """
+            Fit method, does nothing as no fitting is required for this transformer.
+            It is still added as a method to be compatible with sklearn fashion.
 
-        # There is nothing to fit for feature engineering in this project
-        # It is still added as a method to be compatible with sklearn fashion
-        pass
+            Parameters:
+            - X (pd.DataFrame): The input data frame with features.
+
+            Returns:
+            - self (object): Returns self.
+        """
+
+        return self
 
     def transform(self, X):
+        """
+            Transform original features
+
+            Params:
+            - X (pd.DataFrame): The input data frame with features.
+
+            Returns:
+            - pd.DataFrame: The dataframe with transformed features
+        """
         X_transformed = X.copy()
 
         X = X.assign(
