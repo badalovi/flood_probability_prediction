@@ -35,9 +35,9 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         """
-            Transform original features
+            Applies a specified feature engineering approach to original features
 
-            Params:
+            Parameters:
             - X (pd.DataFrame): The input data frame with features.
 
             Returns:
