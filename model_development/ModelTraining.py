@@ -3,32 +3,29 @@ class ModelTraining:
        Class for training and evaluating a CatBoostRegressor model with optional feature selection and hyperparameter tuning.
 
        Parameters:
-       -----------
-       feature_selection (bool): Whether to perform feature selection before model training.
-       grid_search_params (dict or None): Parameters for grid search cross-validation. If None, default parameters are used.
-       feature_selection_method {'from_model', 'pca'}: Method for feature selection:
-           - 'from_model': Uses SelectFromModel with CatBoostRegressor for feature selection.
-           - 'pca': Uses PCA for feature selection.
+       - feature_selection (bool): Whether to perform feature selection before model training.
+       - grid_search_params (dict or None): Parameters for grid search cross-validation. If None, default parameters are used.
+       - feature_selection_method {'from_model', 'pca'}: Method for feature selection:
+            - 'from_model': Uses SelectFromModel with CatBoostRegressor for feature selection.
+            - 'pca': Uses PCA for feature selection.
 
        Attributes:
-       -----------
-       X_selected (pd.DataFrame): Selected features after feature selection.
-       y (pd.Series): Target variable.
-       selected_features (list): Names of selected features in case feature_selection=True
-       grid_search_result (pd.DataFrame): Results of grid search cross-validation, including hyperparameters and evaluation metrics.
-       best_params_ (dict): Best hyperparameters found during the grid search.
-       model(CatBoostRegressor): Trained CatBoostRegressor model with best_params_ parameters.
+       - X_selected (pd.DataFrame): Selected features after feature selection.
+       - y (pd.Series): Target variable.
+       - selected_features (list): Names of selected features in case feature_selection=True
+       - grid_search_result (pd.DataFrame): Results of grid search cross-validation, including hyperparameters and evaluation metrics.
+       - best_params_ (dict): Best hyperparameters found during the grid search.
+       - model(CatBoostRegressor): Trained CatBoostRegressor model with best_params_ parameters.
 
        Methods:
-       --------
-       fit(X, y, max_features=20):
-           Performs feature selection (if enabled), hyperparameter tuning, and fits the model to the data using best parameters during grid search.
-       predict(X_test=None):
-           Predicts the train data by default using the trained model if test data is not provided.
-       get_train_test_performance():
-           Computes and prints performance metrics (MSE, MAE, R2) on the train/test split of the training data.
-       set_final_model(rank):
-           Resets the desired model found in grid search results, other than the best model fitted by default.
+       - fit(X, y, max_features=20):
+            Performs feature selection (if enabled), hyperparameter tuning, and fits the model to the data using best parameters during grid search.
+       - predict(X_test=None):
+            Predicts the train data by default using the trained model if test data is not provided.
+       - get_train_test_performance():
+            Computes and prints performance metrics (MSE, MAE, R2) on the train/test split of the training data.
+       - set_final_model(rank):
+            Resets the desired model found in grid search results, other than the best model fitted by default.
     """
 
 
@@ -43,9 +40,7 @@ class ModelTraining:
 
     def fit(self, X, y, max_features=20):
         """
-            Performs feature selection (if enabled), hyperparameter tuning, and fits the model to the data using best parameters during grid search.
-
-            Split the data into test and train
+            Performs feature selection (if enabled), hyperparameter tuning, and fits the model to the data using best parameters found during grid search.
 
             Parameters:
             - X (pd.DataFrame): The input data frame with features.
