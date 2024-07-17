@@ -9,5 +9,6 @@ The workflow is assuming a pre-determined feature engineering approach and a spe
  - *get_train_test_performance*: Can get the performance metrics based on train test split, while CV results can be found in grid_search_result attribute.
  - *set_final_model*: Can choose the final model manually from grid_search_result attribute, by providing rank.
 <br>
+
 ### A Simple Diagram Demonstrating the Workflow
 <img width="450" alt="wflowp1" src="https://github.com/user-attachments/assets/6991b610-45b6-48de-b2d5-d27f8fc9c2d8">
