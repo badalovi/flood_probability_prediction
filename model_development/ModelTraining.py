@@ -1,3 +1,11 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import GridSearchCV, ParameterGrid
+from sklearn.feature_selection import SelectFromModel
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from catboost import CatBoostRegressor
+
+
 class ModelTraining:
     """
        Class for training and evaluating a CatBoostRegressor model with optional feature selection and hyperparameter tuning.
@@ -161,8 +169,7 @@ class ModelTraining:
         r2_train = r2_score(y_pred_train, y_train)
         r2_test = r2_score(y_pred_test, y_test)
 
-        print(
-            f'MSE Train: {mse_train:.4f} \nMSE Test: {mse_test:.4f} \n \nMAE Train: {mae_train:.4f} \nMAE Test: {mae_test:.4f} \n \nR2 Train: {r2_train:.4f} \nR2 Test: {r2_test:.4f}')
+        print(f'MSE Train: {mse_train:.4f} \nMSE Test: {mse_test:.4f} \n \nMAE Train: {mae_train:.4f} \nMAE Test: {mae_test:.4f} \n \nR2 Train: {r2_train:.4f} \nR2 Test: {r2_test:.4f}')
 
     def set_final_model(self, rank):
         """
@@ -173,9 +180,9 @@ class ModelTraining:
 
             Returns:
             - None: This method does not return any value while it resets the following attributes:
-                - self.best_params_ (dict): The best parameter set chosen by user from the self.grid_search_result.
-                - self.model (CatBoostRegressor): The trained model with the best_params_ parameter set.
-                """
+            - self.best_params_ (dict): The best parameter set chosen by user from the self.grid_search_result.
+            - self.model (CatBoostRegressor): The trained model with the best_params_ parameter set.
+        """
         # Check if the input model is already fitted
         if self.rank_input != rank:
             self.rank_input = rank

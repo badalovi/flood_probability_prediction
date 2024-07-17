@@ -1,3 +1,7 @@
+import numpy as np
+import pandas as pd
+from sklearn.decomposition import PCA
+
 def train_test_ind(X, y, seed_=100):
     """
         Split the data into test and train
@@ -49,7 +53,7 @@ def PCA_feature_selection(X_transformed, max_features=20):
 
        Returns:
        - pd.DataFrame: The data frame with selected features.
-       """
+    """
 
     # Perform PCA
     pca = PCA()

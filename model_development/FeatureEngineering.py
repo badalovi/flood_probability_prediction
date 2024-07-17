@@ -1,3 +1,8 @@
+import numpy as np
+import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
+from scipy.stats import skew, kurtosis
+
 class FeatureEngineering(BaseEstimator, TransformerMixin):
     """
        Custom transformer for feature engineering.
@@ -13,7 +18,6 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
             Fit method, does nothing as no fitting is required for this transformer.
        transform(self, X):
             Transform original features
-
     """
 
     def __init__(self, keep_original_features=True):
