@@ -7,7 +7,8 @@ class ModelTraining:
        - grid_search_params (dict or None): Parameters for grid search cross-validation. If None, default parameters are used.
        - feature_selection_method {'from_model', 'pca'}: Method for feature selection:
             - 'from_model': Uses SelectFromModel with CatBoostRegressor for feature selection.
-            - 'pca': Uses PCA for feature selection.
+            - 'pca': Uses PCA Loadings for feature selection.
+       - cv (int): Number of folds in Cross-Validation
 
        Attributes:
        - X_selected (pd.DataFrame): Selected features after feature selection.
@@ -34,6 +35,7 @@ class ModelTraining:
         self.grid_search_params = grid_search_params
         self.feature_selection_method = feature_selection_method
         self.cv = cv
+        self.model_train = None
 
         if self.grid_search_params is None:
             self.grid_search_params = {}
@@ -56,6 +58,8 @@ class ModelTraining:
             - self.best_params_ (dict): The best parameter set found by the grid search.
             - self.model (CatBoostRegressor): The trained model with the best parameter set.
         """
+
+        ### 1. Feature Selection Step
         if self.feature_selection:
             print("Feature Selection has been started")
 
@@ -72,6 +76,8 @@ class ModelTraining:
         self.y = y
         self.selected_features = X_selected.columns
 
+
+        ### 2. Hyperparameter Tuning Step
         print("\nHyperparameter Tuning has been started")
 
         grid_search = GridSearchCV(
@@ -90,11 +96,16 @@ class ModelTraining:
 
         print("\nHyperparameter tuning has been done")
 
-        # Set the best parameters
+
+        ### 3. Final Model Fitting Step
         print("\nBest model is being fitted..")
         self.best_params_ = grid_search.best_params_
         self.model = CatBoostRegressor(**self.best_params_, verbose=False)
         self.model.fit(X_selected, y)
+
+        # Initializing rank parameters to avoid repetition
+        self.rank_current = 0
+        self.rank_input = 1
 
     def predict(self, X_test=None):
         """
@@ -132,15 +143,15 @@ class ModelTraining:
         # Split the main training data
         X_selected_train, X_selected_test, y_train, y_test = train_test_ind(self.X_selected, self.y)
 
-        # Initialize and fit model
-        self.model_train = CatBoostRegressor(**self.best_params_, verbose=False)
-        self.model_train.fit(X_selected_train, y_train)
+        # Check if the fitted model is already fitted
+        if self.rank_current != self.rank_input:
+            self.rank_current = self.rank_input
+            self.model_train = CatBoostRegressor(**self.best_params_, verbose=False)
+            self.model_train.fit(X_selected_train, y_train)
 
-        # Make predictions for both train and test
         y_pred_train = self.model_train.predict(X_selected_train)
         y_pred_test = self.model_train.predict(X_selected_test)
 
-        # Compute MSE, MAE and R2 metrics on both train and test
         mse_train = mean_squared_error(y_pred_train, y_train)
         mse_test = mean_squared_error(y_pred_test, y_test)
 
@@ -150,9 +161,8 @@ class ModelTraining:
         r2_train = r2_score(y_pred_train, y_train)
         r2_test = r2_score(y_pred_test, y_test)
 
-        # Prints the results respectively
         print(
-            f'MSE Train: {mse_train:.4f} \nMSE Test: {mse_test:.4f} \n \nMAE Train: {mae_train:.4f} \nMAE Test: {mae_train:.4f} \n \nR2 Train: {r2_train:.4f} \nR2 Test: {r2_test:.4f}')
+            f'MSE Train: {mse_train:.4f} \nMSE Test: {mse_test:.4f} \n \nMAE Train: {mae_train:.4f} \nMAE Test: {mae_test:.4f} \n \nR2 Train: {r2_train:.4f} \nR2 Test: {r2_test:.4f}')
 
     def set_final_model(self, rank):
         """
@@ -163,12 +173,15 @@ class ModelTraining:
 
             Returns:
             - None: This method does not return any value while it resets the following attributes:
-                - self.best_params_ (dict): The best parameters set by user.
+                - self.best_params_ (dict): The best parameter set chosen by user from the self.grid_search_result.
                 - self.model (CatBoostRegressor): The trained model with the best_params_ parameter set.
                 """
-        df_best_params = self.grid_search_result.query("rank_test_score==@rank").filter(like='param')
-        df_best_params.columns = df_best_params.columns.str.replace('param_', '')
-        self.best_params_ = df_best_params.iloc[0].to_dict()
+        # Check if the input model is already fitted
+        if self.rank_input != rank:
+            self.rank_input = rank
 
-        self.model = CatBoostRegressor(**self.best_params_, verbose=False)
-        self.model.fit(self.X_selected, self.y)
+            df_best_params = self.grid_search_result.query("rank_test_score==@rank").filter(like='param')
+            df_best_params.columns = df_best_params.columns.str.replace('param_', '')
+            self.best_params_ = df_best_params.iloc[0].to_dict()
+            self.model = CatBoostRegressor(**self.best_params_, verbose=False)
+            self.model.fit(self.X_selected, self.y)
