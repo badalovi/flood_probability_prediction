@@ -42,36 +42,80 @@ def train_test_ind(X, y, seed_=100):
 
     return X_train, X_test, y_train, y_test
 
-
-def PCA_feature_selection(X_transformed, max_features=20):
+class pca_selector():
     """
-       Feature selection based on PCA loadings.
+           Customer class for PCA feature selection.
 
-       Parameters:
-       - X_transformed (pd.DataFrame): The input data frame with features.
-       - max_features (int): The maximum number of features to select.
+           Parameters:
+           max_features (int): The maximum number of features to select.
 
-       Returns:
-       - pd.DataFrame: The data frame with selected features.
-    """
+           Attributes:
+           max_features (int): The maximum number of features to select.
 
-    # Perform PCA
-    pca = PCA()
-    pca.fit(X_transformed)
+           Methods:
+           fit(self, X):
+                Fit method, does nothing as no fitting is required for this transformer.
+           transform(self, X):
+                Transform original features
+        """
 
-    # Get the explained variance ratio and calculate loadings
-    explained_variance = pca.explained_variance_ratio_
+    def __init__(self, max_features=20):
+        self.max_features = max_features
 
-    loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
-    loading_df = pd.DataFrame(loadings, index=X_transformed.columns,
-                              columns=[f'PC_{i + 1}' for i in range(len(X_transformed.columns))])
+    def fit(self, X_transformed):
+        """
+            This method performs feature selection using Principal Component Analysis (PCA) loadings and save
+            the selected features as self.selected_features.
 
-    # Calculate the contribution of each feature to the total explained variance
-    contribution = loading_df.abs().sum(axis=1)
-    contribution = contribution / contribution.sum()
-    final_features = contribution.sort_values(ascending=False)[:max_features].index.to_list()
+            Parameters:
+            - X_transformed (pd.DataFrame): The input data frame with features.
 
-    # Final X DataFrame containing selected features
-    X_selected = X_transformed[final_features]
+            Returns:
+            This method does not return anything while saving selected features as self.selected_features
+            to pass to transform() method.
+        """
 
-    return X_selected
+        pca = PCA()
+        pca.fit(X_transformed)
+
+        # Get the explained variance ratio and calculate loadings
+        explained_variance = pca.explained_variance_ratio_
+
+        loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
+        loading_df = pd.DataFrame(loadings, index=X_transformed.columns,
+                                  columns=[f'PC_{i + 1}' for i in range(len(X_transformed.columns))])
+
+        # Calculate the contribution of each feature to the total explained variance
+        contribution = loading_df.abs().sum(axis=1)
+        contribution = contribution / contribution.sum()
+
+        # Set final features
+        self.final_features = contribution.sort_values(ascending=False)[:self.max_features].index.to_list()
+
+    def transform(self, X_transformed):
+        """
+        This method selects features selected based on the PCA loadings and returns the
+        final DataFrame containing only the final features.
+
+        Parameters:
+        - X_transformed (pd.DataFrame): The input data frame with features.
+
+        Returns:
+        - pd.DataFrame: The dataframe with selected features
+        """
+        return X_transformed[self.final_features]
+
+    def fit_transform(self, X_transformed):
+        """
+        This method performs feature selection using Principal Component Analysis (PCA) loadings and
+        returns the final DataFrame containing only the final features
+
+        Parameters:
+        - X_transformed (pd.DataFrame): The input data frame with features.
+
+        Returns:
+        - pd.DataFrame: The dataframe with selected features
+        """
+        self.fit(X_transformed)
+
+        return self.transform(X_transformed)

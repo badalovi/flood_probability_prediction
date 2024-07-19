@@ -4,6 +4,7 @@ from sklearn.model_selection import GridSearchCV, ParameterGrid
 from sklearn.feature_selection import SelectFromModel
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from catboost import CatBoostRegressor
+from .utils import *
 
 
 class ModelTraining:
@@ -76,7 +77,9 @@ class ModelTraining:
                 self.selector.fit(X, y)
                 X_selected = self.selector.transform(X)
             elif self.feature_selection_method == 'pca':
-                X_selected = PCA_feature_selection(X)
+                self.selector = pca_selector(max_features=max_features)
+                self.selector.fit(X)
+                X_selected = self.selector.transform(X)
         else:
             X_selected = X
 
